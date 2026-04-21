@@ -1,0 +1,14 @@
+test/
+src/
+.github/
+docker-compose*.yml
+.env*
+.gitignore
+.eslintrc*
+eslint.config.*
+vitest.config.ts
+tsconfig.json
+coverage/
+junit-*.xml
+CONTRIBUTING.md
+docs/

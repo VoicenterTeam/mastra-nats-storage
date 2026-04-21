@@ -1,0 +1,31 @@
+services:
+  nats-1:
+    image: nats:2.11-alpine
+    command: >
+      --name nats-1
+      --cluster_name test-cluster
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-2:6222,nats://nats-3:6222
+      --js
+      --sd /data
+    ports: ["4222:4222"]
+
+  nats-2:
+    image: nats:2.11-alpine
+    command: >
+      --name nats-2
+      --cluster_name test-cluster
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-1:6222,nats://nats-3:6222
+      --js
+      --sd /data
+
+  nats-3:
+    image: nats:2.11-alpine
+    command: >
+      --name nats-3
+      --cluster_name test-cluster
+      --cluster nats://0.0.0.0:6222
+      --routes nats://nats-1:6222,nats://nats-2:6222
+      --js
+      --sd /data
