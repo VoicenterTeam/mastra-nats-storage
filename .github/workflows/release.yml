@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+
+      - name: Start NATS
+        run: docker compose -f docker-compose.test.yml up -d
+      - name: Wait for cluster
+        run: |
+          for i in $(seq 1 30); do
+            nc -z localhost 4222 && break || sleep 1
+          done
+      - run: pnpm test
+        env:
+          NATS_URL: nats://localhost:4222
+
+      - name: Audit package contents
+        run: |
+          npm pack --dry-run 2>&1 | tee pack-contents.txt
+          if grep -i -E '\.env$|secret|credential|password' pack-contents.txt; then
+            echo "ERROR: Potential secrets in package!"
+            exit 1
+          fi
+
+      - run: pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Teardown
+        if: always()
+        run: docker compose -f docker-compose.test.yml down
