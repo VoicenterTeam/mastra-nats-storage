@@ -8,3 +8,5 @@ dist/
 coverage/
 junit-*.xml
 *.tgz
+.claude/
+.mcp.json

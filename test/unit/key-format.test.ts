@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { snapshotKey, indexKey, indexPrefix } from '../../src/keys.js';
+import { snapshotKey, indexKey, indexFilter } from '../../src/keys.js';
 
 describe('snapshotKey', () => {
   it('should format as wf.{workflowName}.{runId}', () => {
@@ -42,16 +42,16 @@ describe('indexKey', () => {
   });
 });
 
-describe('indexPrefix', () => {
-  it('should return wf-idx.{workflowName}. when workflowName is provided', () => {
-    expect(indexPrefix('my-workflow')).toBe('wf-idx.my-workflow.');
+describe('indexFilter', () => {
+  it('should return wf-idx.{workflowName}.> when workflowName is provided', () => {
+    expect(indexFilter('my-workflow')).toBe('wf-idx.my-workflow.>');
   });
 
-  it('should return wf-idx. when no workflowName is provided', () => {
-    expect(indexPrefix()).toBe('wf-idx.');
+  it('should return wf-idx.> when no workflowName is provided', () => {
+    expect(indexFilter()).toBe('wf-idx.>');
   });
 
-  it('should return wf-idx. when workflowName is undefined', () => {
-    expect(indexPrefix(undefined)).toBe('wf-idx.');
+  it('should return wf-idx.> when workflowName is undefined', () => {
+    expect(indexFilter(undefined)).toBe('wf-idx.>');
   });
 });

@@ -10,7 +10,7 @@ import { connect, type NatsConnection } from '@nats-io/transport-node';
 import { Kvm, type KV, type KvOptions } from '@nats-io/kv';
 
 import type { NatsKVStorageConfig, ResolvedNatsKVStorageConfig } from './types.js';
-import { snapshotKey, indexKey, indexPrefix } from './keys.js';
+import { snapshotKey, indexKey, indexFilter } from './keys.js';
 import {
   serializeSnapshot,
   deserializeSnapshot,
@@ -199,10 +199,10 @@ export class NatsKVWorkflowsStorage extends WorkflowsStorage {
     args?: StorageListWorkflowRunsInput,
   ): Promise<WorkflowRuns> {
     const kv = this.ensureKv();
-    const prefix = indexPrefix(args?.workflowName);
+    const filter = indexFilter(args?.workflowName);
     const results: WorkflowRun[] = [];
 
-    const keys = await kv.keys(prefix);
+    const keys = await kv.keys(filter);
     for await (const key of keys) {
       try {
         const entry = await kv.get(key);
@@ -263,7 +263,7 @@ export class NatsKVWorkflowsStorage extends WorkflowsStorage {
     }
 
     // Without workflowName, scan index keys
-    const keys = await kv.keys('wf-idx.');
+    const keys = await kv.keys('wf-idx.>');
     for await (const key of keys) {
       if (key.endsWith(`.${runId}`)) {
         try {

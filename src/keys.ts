@@ -10,6 +10,6 @@ export function indexKey(workflowName: string, runId: string): string {
   return `wf-idx.${workflowName}.${runId}`;
 }
 
-export function indexPrefix(workflowName?: string): string {
-  return workflowName ? `wf-idx.${workflowName}.` : 'wf-idx.';
+export function indexFilter(workflowName?: string): string {
+  return workflowName ? `wf-idx.${workflowName}.>` : 'wf-idx.>';
 }
